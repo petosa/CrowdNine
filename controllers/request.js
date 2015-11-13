@@ -7,6 +7,12 @@ var Request = require('../models/Request');
 var request = require('request');
 var Promise = require('promise-simple');
 var secrets = require('../config/secrets');
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+var ObjectId = require('mongodb').ObjectID;
+var url = secrets.db;
+var lat = 0;
+var lng = 0;
 /**
  * GET /request
  * request form page.
@@ -63,6 +69,8 @@ function compare(a,b) {
     return a.dist - b.dist;
 }
 
+
+
 /**
  * POST /request
  * Send a request form via Nodemailer.
@@ -100,8 +108,8 @@ exports.postRequest = function(req, res) {
   var errors = req.validationErrors();
   
   var latlng = {lat:0, lng:0};
-  
-    var geocodeLoc = function(adr) {
+  var geocodeLoc = function(adr) {
+    adr = adr.split(" ").join("+");
     var result;
     
     var d = Promise.defer();
@@ -118,6 +126,20 @@ exports.postRequest = function(req, res) {
         } else {
             if(!e && r.statusCode === 200){
             result = (JSON.parse(b).results[0].geometry.location);
+            lat = result.lat;
+            lng = result.lng;
+            MongoClient.connect(url, function(err, db) {
+              assert.equal(null, err);
+
+              updateRequestsLat(lat, lng, db, function() {
+
+                  db.close();
+              });
+              updateRequestsLong(lat, lng, db, function() {
+
+                  db.close();
+              });
+            });
             d.resolve(result);
             }else{
                 d.reject(e);
@@ -125,14 +147,34 @@ exports.postRequest = function(req, res) {
         }
         
     });
-    latlng = result;
-    return d;
-};
+  };
 
   if (errors) {
     req.flash('errors', errors);
     return res.redirect('/request');
   }
+  var updateRequestsLat = function(latitude, longitude, db, callback) {
+   db.collection('requests').updateMany(
+      {"latitude": "0"},
+      {
+        $set: { latitude: lat }
+      }
+      ,
+      function(err, results) {
+        callback();
+   });
+};
+var updateRequestsLong = function(latitude, longitude, db, callback) {
+   db.collection('requests').updateMany(
+      { "longitude": "0"},
+      {
+        $set: { longitude: lng }
+      }
+      ,
+      function(err, results) {
+        callback();
+   });
+};
   var requestVar = new Request({
     name: req.body.name,
     street: req.body.street,
@@ -141,25 +183,29 @@ exports.postRequest = function(req, res) {
     phone: req.body.phone,
     priceTotal: newPrice,
     itemList: newArr1,
-    latitude: latlng.lat,
-    longitude: latlng.lng
+    latitude: lat,
+    longitude: lng
  });
+ /*
+MongoClient.connect(url, function(err, db) {
+              assert.equal(null, err);
 
+              updateRequests(db, function() {
+
+                  db.close();
+              });
+            });*/
   requestVar.save(function(err) {
     if (err) return next(err);
-        geocodeLoc(combined).then(function(result){
-            latlng = result;
-            requestVar.latitude = latlng.lat;
-            requestVar.longitude = latlng.lng;
-            
-            var nearest = nearestPostmates(result.lat, result.lng).address;
-            if(req.body.state != nearest.slice(-2)) {
-                req.flash('errors', { msg: "Nearest store not within state."});
-                res.redirect('/request');
-            } else {
-                req.flash('success', { msg: "Request sent."});
-                res.redirect('/request');
-            }
-        });
-    });
+      console.log(geocodeLoc(combined));
+      console.log(lat);
+      console.log(lng);
+      //if(req.body.state != nearest.slice(-2)) {
+        //  req.flash('errors', { msg: "Nearest store not within state."});
+         // res.redirect('/request');
+      //} else {
+          req.flash('success', { msg: "Request sent."});
+          res.redirect('/request');
+      //}
+  });
 };
