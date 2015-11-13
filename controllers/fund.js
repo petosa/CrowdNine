@@ -46,33 +46,15 @@ exports.getFund = function(req, res) {
     assert.equal(null, err);
     findRequests(db, function(arr) {
         
-      /*var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
+      var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
       var IPcoord = gip.lookup(geoIP);      
       
-      for (i = 0; i < arr.length; i++) {
-          var temp = {
-              _id: arr[i]._id,
-              name: arr[i].name,
-              street: arr[i].street,
-              city: arr[i].city,
-              state: arr[i].state,
-              phone: arr[i].phone,
-              priceTotal: arr[i].priceTotal,
-              latitude: arr[i].latitude,
-              longitude: arr[i].longitude,
-              itemList: arr[i].itemList,
-              __v: arr[i].__v,
-              dist: Math.sqrt(Math.pow(IPcoord[0] - latitude, 2) + Math.pow(IPcoord[1] - longitude, 2))
-          }
-          
-          arr[i] = temp;
-      }
-      
       function compare(a,b) {
-        return a.dist - b.dist;
+        return Math.sqrt(Math.pow(IPcoord[0] - a.latitude, 2) + Math.pow(IPcoord[1] - a.longitude, 2)) 
+            - Math.sqrt(Math.pow(IPcoord[0] - b.latitude, 2) + Math.pow(IPcoord[1] - b.longitude, 2));
       }
       
-      //arr.sort(compare);*/
+      arr.sort(compare);
         
       res.render('fund', {
         title: 'Fund',
