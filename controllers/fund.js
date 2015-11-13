@@ -47,11 +47,28 @@ exports.getFund = function(req, res) {
     findRequests(db, function(arr) {
         
       var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
-      var IPcoord = gip.lookup(geoIP);
+      var IPcoord = gip.lookup(geoIP);      
       
-      console.log(geoIP);
-      console.log(IPcoord);
-      console.log("doobie");
+      for (i = 0; i < arr.length; i++) {
+          var temp = {
+              _id: arr[i]._id,
+              name: arr[i].name,
+              street: arr[i].street,
+              city: arr[i].city,
+              state: arr[i].state,
+              phone: arr[i].phone,
+              priceTotal: arr[i].priceTotal,
+              latitude: arr[i].latitude,
+              longitude: arr[i].longitude,
+              itemList: arr[i].itemList,
+              __v: arr[i].__v,
+              dist: Math.sqrt(Math.pow(IPcoord[0] - latitude, 2) + Math.pow(IPcoord[1] - longitude, 2))
+          }
+          
+          arr[i] = temp;
+      }
+      
+      arr.sort(compare);
         
       res.render('fund', {
         title: 'Fund',
@@ -61,6 +78,10 @@ exports.getFund = function(req, res) {
     });
   });
 };
+
+function compare(a,b) {
+    return a.dist - b.dist;
+}  
   /*var ipMiddleware = function(req1, res1, next1) {
     var clientIp = requestIP.getClientIp(req1); // on localhost > 127.0.0.1 
     next1();
