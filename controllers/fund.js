@@ -45,6 +45,13 @@ exports.getFund = function(req, res) {
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     findRequests(db, function(arr) {
+        
+      var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
+      var IPcoord = gip.lookup(geoIP);
+      
+      console.log(geoIP);
+      console.log(IPcoord);
+        
       res.render('fund', {
         title: 'Fund',
         arr: arr
