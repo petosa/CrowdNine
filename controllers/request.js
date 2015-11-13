@@ -92,7 +92,7 @@ exports.postRequest = function(req, res) {
   } else {
     var newPrice = req.body.price;
   }
-  var combined = req.body.street + "+" + req.body.city + "+" + req.body.state;
+  var combined = (req.body.street + "+" + req.body.city + "+" + req.body.state).replace(",", "").replace(" ", "");
   req.assert('street', 'Street is empty.').notEmpty();
   req.assert('city', 'City is empty.').notEmpty();
   req.assert('state', 'State must be 2 letters.').len(2, 2);
@@ -100,7 +100,6 @@ exports.postRequest = function(req, res) {
   var errors = req.validationErrors();
   
   var latlng = {lat:0, lng:0};
-  var requestVar;
   
     var geocodeLoc = function(adr) {
     var result;
@@ -127,19 +126,6 @@ exports.postRequest = function(req, res) {
         
     });
     latlng = result;
-    
-    requestVar = new Request({
-    name: req.body.name,
-    street: req.body.street,
-    city: req.body.city,
-    state: req.body.state,
-    phone: req.body.phone,
-    priceTotal: newPrice,
-    itemList: newArr1,
-    latitude: result.lat,
-    longitude: result.lng
- });
-    
     return d;
 };
 
@@ -147,6 +133,17 @@ exports.postRequest = function(req, res) {
     req.flash('errors', errors);
     return res.redirect('/request');
   }
+  var requestVar = new Request({
+    name: req.body.name,
+    street: req.body.street,
+    city: req.body.city,
+    state: req.body.state,
+    phone: req.body.phone,
+    priceTotal: newPrice,
+    itemList: newArr1,
+    latitude: geocodeLoc(combined).result.lat,
+    longitude: geocodeLoc(combined).result.lng
+ });
 
   requestVar.save(function(err) {
     if (err) return next(err);
