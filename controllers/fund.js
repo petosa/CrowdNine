@@ -68,6 +68,10 @@ exports.getFund = function(req, res) {
           arr[i] = temp;
       }
       
+      function compare(a,b) {
+        return a.dist - b.dist;
+      }  
+      
       arr.sort(compare);
         
       res.render('fund', {
@@ -78,10 +82,6 @@ exports.getFund = function(req, res) {
     });
   });
 };
-
-function compare(a,b) {
-    return a.dist - b.dist;
-}  
   /*var ipMiddleware = function(req1, res1, next1) {
     var clientIp = requestIP.getClientIp(req1); // on localhost > 127.0.0.1 
     next1();
