@@ -144,6 +144,8 @@ exports.postRequest = function(req, res) {
     latitude: geocodeLoc(combined).lat,
     longitude: geocodeLoc(combined).lng
  });
+ 
+ console.log(geocodeLoc(combined));
 
   requestVar.save(function(err) {
     if (err) return next(err);
