@@ -51,6 +51,7 @@ exports.getFund = function(req, res) {
       
       console.log(geoIP);
       console.log(IPcoord);
+      console.log("doobie");
         
       res.render('fund', {
         title: 'Fund',
