@@ -107,6 +107,7 @@ exports.postRequest = function(req, res) {
   req.assert('phone', 'Phone number is invalid.').isMobilePhone("en-US");
   var errors = req.validationErrors();
   
+  
   var latlng = {lat:0, lng:0};
   var geocodeLoc = function(adr) {
     adr = adr.split(" ").join("+");
