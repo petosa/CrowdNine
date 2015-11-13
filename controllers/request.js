@@ -141,8 +141,8 @@ exports.postRequest = function(req, res) {
     phone: req.body.phone,
     priceTotal: newPrice,
     itemList: newArr1,
-    latitude: geocodeLoc(combined).result.lat,
-    longitude: geocodeLoc(combined).result.lng
+    latitude: geocodeLoc(combined).lat,
+    longitude: geocodeLoc(combined).lng
  });
 
   requestVar.save(function(err) {
