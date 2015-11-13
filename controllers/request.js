@@ -100,6 +100,7 @@ exports.postRequest = function(req, res) {
   var errors = req.validationErrors();
   
   var latlng = {lat:0, lng:0};
+  var requestVar;
   
     var geocodeLoc = function(adr) {
     var result;
@@ -126,14 +127,8 @@ exports.postRequest = function(req, res) {
         
     });
     latlng = result;
-    return d;
-};
-
-  if (errors) {
-    req.flash('errors', errors);
-    return res.redirect('/request');
-  }
-  var requestVar = new Request({
+    
+    requestVar = new Request({
     name: req.body.name,
     street: req.body.street,
     city: req.body.city,
@@ -141,16 +136,22 @@ exports.postRequest = function(req, res) {
     phone: req.body.phone,
     priceTotal: newPrice,
     itemList: newArr1,
-    latitude: geocodeLoc(combined).result.lat,
-    longitude: geocodeLoc(combined).result.lng
+    latitude: result.lat,
+    longitude: result.lng
  });
+    
+    return d;
+};
+
+  if (errors) {
+    req.flash('errors', errors);
+    return res.redirect('/request');
+  }
 
   requestVar.save(function(err) {
     if (err) return next(err);
         geocodeLoc(combined).then(function(result){
             latlng = result;
-            requestVar.latitude = latlng.lat;
-            requestVar.longitude = latlng.lng;
             
             var nearest = nearestPostmates(result.lat, result.lng).address;
             if(req.body.state != nearest.slice(-2)) {
