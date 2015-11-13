@@ -46,7 +46,7 @@ exports.getFund = function(req, res) {
     assert.equal(null, err);
     findRequests(db, function(arr) {
         
-      var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
+      /*var geoIP = (req.headers['x-forwarded-for'] || '').split(',')[0] || req.connection.remoteAddress;
       var IPcoord = gip.lookup(geoIP);      
       
       for (i = 0; i < arr.length; i++) {
@@ -70,9 +70,9 @@ exports.getFund = function(req, res) {
       
       function compare(a,b) {
         return a.dist - b.dist;
-      }  
+      }
       
-      arr.sort(compare);
+      //arr.sort(compare);*/
         
       res.render('fund', {
         title: 'Fund',
